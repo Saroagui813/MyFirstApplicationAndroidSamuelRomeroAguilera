@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MyFirstApplicationSamuelRomeroAguilera</string>
+
+    <string name="vacio_name">Tu nombre...</string>
+    <string name="error_name">El nombre debe contener al menos 3 caracteres</string>
+    <string name="barra_edad">Edad: %1$d años</string>
+</resources>
