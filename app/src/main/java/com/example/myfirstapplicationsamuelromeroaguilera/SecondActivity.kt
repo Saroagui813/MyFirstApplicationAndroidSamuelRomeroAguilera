@@ -1,9 +1,7 @@
 package com.example.myfirstapplicationsamuelromeroaguilera
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.SeekBar
@@ -12,12 +10,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class SecondActivity : AppCompatActivity() {
-
     private lateinit var entradaNombre: EditText
     private lateinit var buttonEditar: Button
     private lateinit var buttonReset: Button
@@ -25,17 +21,14 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var textoEdad: TextView
     private lateinit var spinnerIdiomas: Spinner
 
-    companion object {
-        const val EXTRA_NOMBRE = "nombre"
-        const val EXTRA_EDAD = "edad"
-        const val EXTRA_IDIOMA = "idioma"
-    }
+    private var name: String? = ""
+    private var age: String? = ""
+    private var language: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        val raiz = findViewById<ConstraintLayout>(R.id.main)
+        setContentView(R.layout.activity_second)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -49,12 +42,24 @@ class SecondActivity : AppCompatActivity() {
         textoEdad = findViewById(R.id.textoEdad)
         spinnerIdiomas = findViewById(R.id.spinnerIdiomas)
 
-        raiz.setBackgroundColor(Color.parseColor("#DCE775"))
-        findViewById<TextView>(R.id.buttonEnviar).text = "EDITAR"
         buttonEditar.text = "EDITAR"
+
+        name = intent.extras?.getString("DATA_NAME")
+        age = intent.extras?.getString("DATA_AGE")
+        language = intent.extras?.getString("DATA_LANGUAGE")
+
+        entradaNombre.setText(name)
+        barraEdad.progress = age?.toIntOrNull() ?: 0
+        textoEdad.text = getString(R.string.barra_edad, barraEdad.progress)
+        spinnerIdiomas.setSelection(language?.toIntOrNull() ?: 0)
 
         buttonEditar.setOnClickListener {
             if (nombreValido() && idiomaValido()) {
+                val resultado = Intent()
+                resultado.putExtra("DATA_NAME", entradaNombre.text.toString())
+                resultado.putExtra("DATA_AGE", barraEdad.progress.toString())
+                resultado.putExtra("DATA_LANGUAGE", spinnerIdiomas.selectedItemPosition.toString())
+                setResult(RESULT_OK, resultado)
                 finish()
             }
         }
@@ -63,7 +68,7 @@ class SecondActivity : AppCompatActivity() {
             reset()
         }
 
-        textoEdad.text = getString(R.string.barra_edad, 0)
+        textoEdad.text = getString(R.string.barra_edad, barraEdad.progress)
 
         barraEdad.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -76,11 +81,6 @@ class SecondActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
-
-        val idiomas: Array<String> = arrayOf("--- Elige un Idioma ---", "Español", "Inglés", "Aleman", "Chino", "Italiano", "Francés")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, idiomas)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item)
-        spinnerIdiomas.adapter = adapter
 
     }
 

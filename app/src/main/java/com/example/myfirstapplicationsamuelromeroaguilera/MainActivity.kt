@@ -2,7 +2,6 @@ package com.example.myfirstapplicationsamuelromeroaguilera
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.SeekBar
@@ -10,6 +9,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -22,6 +22,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var barraEdad: SeekBar
     private lateinit var textoEdad: TextView
     private lateinit var spinnerIdiomas: Spinner
+
+    private val lanzador = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        resultado -> if (resultado.resultCode == RESULT_OK) {
+            val datos = resultado.data?.extras
+            entradaNombre.setText(datos?.getString("DATA_NAME"))
+            barraEdad.progress = datos?.getString("DATA_AGE")?.toIntOrNull() ?: 0
+            spinnerIdiomas.setSelection(datos?.getString("DATA_LANGUAGE")?.toIntOrNull() ?: 0)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,11 +73,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        val idiomas: Array<String> = arrayOf("--- Elige un Idioma ---", "Español", "Inglés", "Aleman", "Chino", "Italiano", "Francés")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, idiomas)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item)
-        spinnerIdiomas.adapter = adapter
-
     }
 
     private fun nombreValido(): Boolean {
@@ -91,11 +95,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun irASegundaPantalla() {
+//        val intent = Intent(this, SecondActivity::class.java)
+//        intent.putExtra(SecondActivity.EXTRA_NOMBRE, entradaNombre.text.toString())
+//        intent.putExtra(SecondActivity.EXTRA_EDAD, barraEdad.progress)
+//        intent.putExtra(SecondActivity.EXTRA_IDIOMA, spinnerIdiomas.selectedItemPosition)
+//        startActivity(intent)
+
         val intent = Intent(this, SecondActivity::class.java)
-        intent.putExtra(SecondActivity.EXTRA_NOMBRE, entradaNombre.text.toString().trim())
-        intent.putExtra(SecondActivity.EXTRA_EDAD, barraEdad.progress)
-        intent.putExtra(SecondActivity.EXTRA_IDIOMA, spinnerIdiomas.selectedItemPosition)
-        startActivity(intent)
+        intent.putExtra("DATA_NAME", entradaNombre.text.toString())
+        intent.putExtra("DATA_AGE", barraEdad.progress.toString())
+        intent.putExtra("DATA_LANGUAGE", spinnerIdiomas.selectedItemPosition.toString())
+        lanzador.launch(intent)
     }
 
     private fun reset() {
